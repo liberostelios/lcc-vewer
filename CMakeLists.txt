@@ -1,74 +1,60 @@
-# Top level CMakeLists.txt for CGAL-branchbuild
-cmake_minimum_required(VERSION 2.6.2)
+# Created by the script cgal_create_cmake_script
+# This is the CMake script for compiling a CGAL application.
+# cmake ../ -DCMAKE_BUILD_TYPE=Debug
 
-# option for branch build
+project (Combinatorial_map_3_demo)
 
-option( CGAL_BRANCH_BUILD "Create CGAL from branch" ON)
-mark_as_advanced( CGAL_BRANCH_BUILD )
+cmake_minimum_required(VERSION 2.4.5)
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -W")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
-# search for some SCM
+set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
-# TODO
-
-if ( EXISTS ${CMAKE_SOURCE_DIR}/.svn )
-  set ( CGAL_SCM_NAME "svn" )
-else ()
-  if ( NOT EXISTS ${CMAKE_SOURCE_DIR}/.git )
-     message( ERROR "Neither 'svn' nor 'git' as SCM found" ) 
-  endif() 
-  set ( CGAL_SCM_NAME "git" )
+if ( COMMAND cmake_policy )
+  cmake_policy( SET CMP0003 NEW )  
 endif()
 
-if ( ${CGAL_SCM_NAME} STREQUAL "svn" )
+find_package(CGAL  COMPONENTS Qt4)
+include(${CGAL_USE_FILE})
 
-  find_program(SVN_EXECUTABLE svn DOC "subversion command line client")
+set( QT_USE_QTXML    TRUE )
+set( QT_USE_QTMAIN   TRUE )
+set( QT_USE_QTSCRIPT  TRUE )
+set( QT_USE_QTOPENGL  TRUE )
+find_package(Qt4)
 
-  function(Subversion_GET_URL dir variable)
-    # use svnversion
-    execute_process(COMMAND "${SVN_EXECUTABLE}" info --xml "${dir}"
-      OUTPUT_VARIABLE ${variable}
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REGEX REPLACE ".*<url>([^<]+)</url>.*" "\\1" ${variable} "${${variable}}")
-    if(NOT variable)
-      message("Warning: can not get the Subversion URL of directory ${dir}")
-    endif()
-    set(${variable} ${${variable}} PARENT_SCOPE)
-  endfunction(Subversion_GET_URL)
+find_package(OpenGL)
+find_package(QGLViewer)
 
-  Subversion_GET_URL("${CGAL_INSTALLATION_PACKAGE_DIR}" CGAL_INSTALLATION_SVN_URL)
-  # Remove the "/Installation" suffix.
-  string(REGEX REPLACE "(.*)/Installation" "\\1" CGAL_TMP_SVN_BRANCH_NAME "${CGAL_INSTALLATION_SVN_URL}")
-  # Remove the prefix of the URL "https://scm.gforge.inria.fr/".
-  string(REGEX REPLACE "[a-z+]+://[a-z0-9.]+" "" CGAL_TMP_SVN_BRANCH_NAME "${CGAL_TMP_SVN_BRANCH_NAME}")
+if ( NOT (CGAL_FOUND AND CGAL_Qt4_FOUND AND QT4_FOUND AND OPENGL_FOUND AND QGLVIEWER_FOUND) )
+  MESSAGE(FATAL_ERROR "NOTICE: This demo requires CGAL, QGLViewer, OpenGL and Qt4, and will not be compiled.")
+endif ( NOT (CGAL_FOUND AND CGAL_Qt4_FOUND AND QT4_FOUND AND OPENGL_FOUND AND QGLVIEWER_FOUND) )
 
-  set ( CGAL_SCM_BRANCH_NAME "${CGAL_TMP_SVN_BRANCH_NAME}" )
-endif()
 
-if ( ${CGAL_SCM_NAME} STREQUAL "git" )
+include(${QT_USE_FILE})
+include_directories(${QGLVIEWER_INCLUDE_DIR})
+include_directories(BEFORE . ../../include/)
+include_directories(BEFORE . ../../../Combinatorial_map/include/)
 
-  find_program(GIT_EXECUTABLE git DOC "git command line client")
 
-#  EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} --git-dir=${CMAKE_SOURCE_DIR}/.git branch
-#      OUTPUT_VARIABLE CGAL_GIT_BRANCH_OUT
-#      OUTPUT_STRIP_TRAILING_WHITESPACE)
-#  #foreach (line IN ${CGAL_GIT_BRANCH_OUT})
-#  #  message (STATUS "Line: ${line}")
-#    if ( STRING( REGEX MATCH "* " CGAL_GIT_BRANCH_LINE
-#      ${CGAL_GIT_BRANCH_OUT} ) )
-#       string ( REGEX REPLACE "# On branch " "" CGAL_GIT_BRANCH ${CGAL_GIT_BRANCH_LINE})
-#    endif()
-#  #endforeach()
+# ui file, created wih Qt Designer
+qt4_wrap_ui( uis MainWindow.ui CreateMesh.ui)
 
-  message( STATUS "Git branch ${CGAL_GIT_BRANCH}") 
+# qrc files (resources files, that contain icons, at least)
+qt4_add_resources ( RESOURCE_FILES ./Combinatorial_map_3.qrc )
 
-  # TODO detect name
-  set ( CGAL_SCM_BRANCH_NAME "n/a" )
+qt4_automoc( MainWindow.cpp Viewer.cpp)
 
-endif()
+add_executable(Combinatorial_map_3
+                      Combinatorial_map_3.cpp MainWindow.cpp
+                      Viewer.cpp map_3_subdivision.cpp
+                      ${uis} ${RESOURCE_FILES} )
 
-# add option for duplicate file detection
-option( CGAL_REPORT_DUPLICATE_FILES "Switch on to start (naive) detection of duplicate source- and headerfiles in packages" OFF)
+add_to_cached_list(CGAL_EXECUTABLE_TARGETS Combinatorial_map_3)
 
-# and finally start actual build
-add_subdirectory( Installation )
-
+target_link_libraries(Combinatorial_map_3 ${CGAL_LIBRARIES}
+                                          ${CGAL_3RD_PARTY_LIBRARIES})
+target_link_libraries(Combinatorial_map_3 ${QT_LIBRARIES}
+                                          ${QGLVIEWER_LIBRARIES} )
+target_link_libraries(Combinatorial_map_3 ${OPENGL_gl_LIBRARY}
+                                          ${OPENGL_glu_LIBRARY} )

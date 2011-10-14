@@ -1,6 +1,0 @@
-#!/bin/zsh
-
-cd $HOME/CGAL/trunk/Maintenance/infrastructure/cgal.geometryfactory.com/
-crontab -l >| crontab
-svn add -q crontab 
-[ -n "`svn st crontab`" ] && svn ci -m 'updated crontab (automated commit)' crontab

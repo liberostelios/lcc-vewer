@@ -1,1 +1,0 @@
-Stream support: General stream iterator and Verbose_ostream.
