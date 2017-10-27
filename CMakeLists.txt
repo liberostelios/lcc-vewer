@@ -52,6 +52,9 @@ add_definitions(-DQT_NO_KEYWORDS)
 include_directories(${QGLVIEWER_INCLUDE_DIR})
 include_directories(BEFORE . ../../include/)
 
+# Include libcitygml
+INCLUDE_DIRECTORIES( /usr/local/include/citygml )
+
 # ui file, created wih Qt Designer
 qt5_wrap_ui(uis MainWindow.ui CreateMesh.ui CreateMenger.ui
                 CreateSierpinskiCarpet.ui CreateSierpinskiTriangle.ui)
@@ -76,5 +79,6 @@ target_link_libraries(Linear_cell_complex_3_demo ${QT_LIBRARIES}
                                                  ${QGLVIEWER_LIBRARIES} )
 target_link_libraries(Linear_cell_complex_3_demo ${OPENGL_gl_LIBRARY}
                                                  ${OPENGL_glu_LIBRARY} )
+target_link_libraries(Linear_cell_complex_3_demo citygml)
 
 endif()

@@ -56,17 +56,17 @@ MainWindow::MainWindow (QWidget * parent):CGAL::Qt::DemosMainWindow (parent),
   QObject::connect(this->volumeList, SIGNAL(cellChanged(int,int)),
                    this, SLOT(onCellChanged(int,int)));
 
-  QStringList labels(QString(tr("Color")));
+  QStringList labels(QString(tr("ID")));
   labels.append(QString(tr("Filled")));
   labels.append(QString(tr("Hidden")));
   volumeList->setHorizontalHeaderLabels(labels);
   //volumeList->resizeColumnsToContents();
-  volumeList->setFixedWidth(220);
-/*  volumeList->setColumnWidth(0,85);
-  volumeList->setColumnWidth(1,35);
-  volumeList->setColumnWidth(2,35);*/
+  volumeList->setFixedWidth(340);
+  volumeList->setColumnWidth(0,250);
+  volumeList->setColumnWidth(1,45);
+  volumeList->setColumnWidth(2,45);
 
-  volumeList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+  //volumeList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
   volumeList->setSelectionMode(QAbstractItemView::NoSelection);
   //volumeList->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -1398,7 +1398,7 @@ void MainWindow::update_volume_list_add(LCC::Attribute_handle<3>::type ah)
   volumeList->setRowCount(newRow+1);
 
   QTableWidgetItem* volumeLabel = new QTableWidgetItem
-    (QString((scene.lcc->get_attribute<3>(ah).info().color_name().c_str())));
+    (QString::fromStdString(scene.lcc->get_attribute<3>(ah).info().get_guid()));
   volumeLabel->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
   volumeLabel->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
   volumeList->setItem(newRow,0,volumeLabel);

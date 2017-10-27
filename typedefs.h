@@ -37,6 +37,14 @@
 #include <CGAL/Timer.h>
 #include <CGAL/Random.h>
 
+#include <citygml.h>
+#include <citymodel.h>
+#include <cityobject.h>
+#include <geometry.h>
+#include <polygon.h>
+#include <object.h>
+#include <attributesmap.h>
+
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -62,7 +70,8 @@ public:
   Volume_info() : m_color(CGAL::Color(myrandom.get_int(0,256),
                                       myrandom.get_int(0,256),
                                       myrandom.get_int(0,256))),
-    m_status( LCC_DEMO_VISIBLE | LCC_DEMO_FILLED )
+    m_status( LCC_DEMO_VISIBLE | LCC_DEMO_FILLED ),
+    m_guid("nothing")
   {}
 
   CGAL::Color& color()
@@ -99,6 +108,26 @@ public:
     else       m_status = m_status ^ LCC_DEMO_FILLED;
   }
 
+  void set_guid(std::string guid)
+  {
+    m_guid = guid;
+  }
+
+  std::string get_guid()
+  {
+    return m_guid;
+  }
+
+  void set_attributes(citygml::AttributesMap attributes)
+  {
+      m_attributes = attributes;
+  }
+
+  citygml::AttributesMap get_attributes()
+  {
+      return m_attributes;
+  }
+
   void negate_visible()
   { set_visible(!is_visible()); }
   void negate_filled()
@@ -107,6 +136,8 @@ public:
 private:
   CGAL::Color m_color;
   char        m_status;
+  std::string m_guid;
+  citygml::AttributesMap m_attributes;
 };
 
 namespace CGAL
@@ -132,6 +163,13 @@ inline void read_cmap_attribute_node<Volume_info>
   }
   catch(const std::exception &  )
   {}
+
+  try
+  {
+    val.m_guid = v.second.get<std::string>("guid");
+  }
+  catch(const std::exception &  )
+  {}
 }
 
 // Definition of function allowing to save custon information.
@@ -144,6 +182,11 @@ inline void write_cmap_attribute_node<Volume_info>(boost::property_tree::ptree &
   nValue.add("color-r",(int)arg.m_color.r());
   nValue.add("color-g",(int)arg.m_color.g());
   nValue.add("color-b",(int)arg.m_color.b());
+  nValue.add("guid",arg.m_guid);
+  for (citygml::AttributesMap::const_iterator it = arg.m_attributes.begin(); it != arg.m_attributes.end(); ++it)
+  {
+      nValue.add("attributes." + it->first, it->second.asString());
+  }
 }
 
 }
