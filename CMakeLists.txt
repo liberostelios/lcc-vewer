@@ -70,16 +70,8 @@ add_executable(Linear_cell_complex_3_demo
 
 add_to_cached_list(CGAL_EXECUTABLE_TARGETS Linear_cell_complex_3_demo)
 
-target_link_libraries(Linear_cell_complex_3_demo ${CGAL_LIBRARIES}
-                                                 ${CGAL_3RD_PARTY_LIBRARIES})
-target_link_libraries(Linear_cell_complex_3_demo ${QT_LIBRARIES}
-                                                 ${QGLVIEWER_LIBRARIES} )
-target_link_libraries(Linear_cell_complex_3_demo ${OPENGL_gl_LIBRARY}
-                                                 ${OPENGL_glu_LIBRARY} )
-target_link_libraries(Linear_cell_complex_3_demo citygml)
-
 target_link_libraries(Linear_cell_complex_3_demo PRIVATE
-  CGAL::CGAL CGAL::CGAL_Qt5 Qt5::Gui Qt5::OpenGL)
+  CGAL::CGAL CGAL::CGAL_Qt5 Qt5::Gui Qt5::OpenGL citygml)
 
 include(${CGAL_MODULES_DIR}/CGAL_add_test.cmake)
 cgal_add_compilation_test(Linear_cell_complex_3_demo)
