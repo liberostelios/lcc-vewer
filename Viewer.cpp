@@ -324,6 +324,9 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
   normal = normal/(CGAL::sqrt(normal*normal));
   if (inverse_normal)
     normal=normal*-1;
+
+  if (isnan(normal.x()))
+    return;
   
   if (lcc.beta<1,1,1>(dh)!=dh)
   {
