@@ -49,7 +49,15 @@ public:
   ~Viewer();
 
   void setScene(Scene* scene_)
-  { scene = scene_; }
+  {
+    scene = scene_;
+    // Clean triangles cache
+    for(auto it = triangles.begin(); it != triangles.end(); it++)
+    {
+      delete it->second;
+    }
+    triangles.clear();
+  }
 
 public:
   void draw();
