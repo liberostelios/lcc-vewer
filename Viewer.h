@@ -73,7 +73,6 @@ private:
   void compute_face(Dart_handle dh, LCC::size_type markface);
   void compute_edge(Dart_handle dh, LCC::size_type markedge);
   void compute_vertex(Dart_handle dh, LCC::size_type markvertex, bool& empty);
-
 private:
   Scene* scene;
   
@@ -106,6 +105,7 @@ private:
   std::vector<float> smooth_normals;
   std::vector<float> flat_normals;
   std::vector<float> colors;
+  std::map<Dart_handle, CDT*> triangles;
 
   QGLBuffer buffers[NB_VBO_BUFFERS];
   QOpenGLVertexArrayObject vao[NB_VAO_BUFFERS];

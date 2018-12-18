@@ -333,8 +333,16 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
     try // Try catch to avoir crash of triangulation
     {
       P_traits cdt_traits(normal);
-      CDT cdt(cdt_traits);
-      
+      CDT* cdt = new CDT(cdt_traits);
+
+      std::map<Dart_handle, CDT*>::iterator it = triangles.find(dh);
+      if (it != triangles.end())
+      {
+        cdt = it->second;
+      }
+      else
+      {
+
       // Iterates on the vector of facet handles
       CDT::Vertex_handle previous = NULL, first = NULL;
       for (LCC::Dart_of_orbit_range<1>::const_iterator
@@ -342,21 +350,21 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
              he_circ_end = lcc.darts_of_orbit<1>(dh).end();
            he_circ!=he_circ_end; ++he_circ)
       {
-        CDT::Vertex_handle vh = cdt.insert(lcc.point(he_circ));
+        CDT::Vertex_handle vh = cdt->insert(lcc.point(he_circ));
         if(first == NULL)
         { first = vh; }
         vh->info().v = CGAL::compute_normal_of_cell_0<LCC>(lcc, he_circ);
         if (inverse_normal) vh->info().v=vh->info().v*-1;
         if(previous!=NULL && previous != vh)
-        { cdt.insert_constraint(previous, vh); }
+        { cdt->insert_constraint(previous, vh); }
         previous = vh;
       }
       if (previous!=NULL)
-        cdt.insert_constraint(previous, first);
+        cdt->insert_constraint(previous, first);
 
       // sets mark is_external
-      for(CDT::All_faces_iterator fit = cdt.all_faces_begin(),
-            fitend = cdt.all_faces_end(); fit!=fitend; ++fit)
+      for(CDT::All_faces_iterator fit = cdt->all_faces_begin(),
+            fitend = cdt->all_faces_end(); fit!=fitend; ++fit)
       {
         fit->info().is_external = true;
         fit->info().is_process = false;
@@ -364,7 +372,7 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
       //check if the facet is external or internal
       std::queue<CDT::Face_handle> face_queue;
       CDT::Face_handle face_internal = NULL;
-      face_queue.push(cdt.infinite_vertex()->face());
+      face_queue.push(cdt->infinite_vertex()->face());
       while(! face_queue.empty() )
       {
         CDT::Face_handle fh = face_queue.front();
@@ -374,7 +382,7 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
           fh->info().is_process = true;
           for(int i = 0; i <3; ++i)
           {
-            if(!cdt.is_constrained(std::make_pair(fh, i)))
+            if(!cdt->is_constrained(std::make_pair(fh, i)))
             {
               face_queue.push(fh->neighbor(i));
             }
@@ -399,18 +407,19 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
           fh->info().is_external = false;
           for(int i = 0; i <3; ++i)
           {
-            if(!cdt.is_constrained(std::make_pair(fh, i)))
+            if(!cdt->is_constrained(std::make_pair(fh, i)))
             {
               face_queue.push(fh->neighbor(i));
             }
           }
         }
       }
+      }
 
       //iterates on the internal faces to add the vertices to the positions
       //and the normals to the appropriate vectors
-      for(CDT::Finite_faces_iterator ffit = cdt.finite_faces_begin(),
-            ffitend = cdt.finite_faces_end(); ffit != ffitend; ++ffit)
+      for(CDT::Finite_faces_iterator ffit = cdt->finite_faces_begin(),
+            ffitend = cdt->finite_faces_end(); ffit != ffitend; ++ffit)
       {
         if(!ffit->info().is_external)
         {
@@ -455,6 +464,8 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
           colors.push_back(r);colors.push_back(g);colors.push_back(b);
         }
       }
+
+      triangles[dh] = cdt;
     }
     catch(...)
     { // Triangulation crash: the face is not filled
