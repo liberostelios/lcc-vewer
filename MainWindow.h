@@ -158,6 +158,7 @@ public Q_SLOTS:
 
   void connectVolumeListHandlers();
   void onCellChanged(int, int);
+  void onCellDoubleClicked(int, int);
   void onHeaderClicked(int);
 
   void onCreateMeshOk();

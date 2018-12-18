@@ -57,6 +57,8 @@ MainWindow::MainWindow (QWidget * parent):CGAL::Qt::DemosMainWindow (parent),
   volumeList->setColumnHidden(3,true);
   QObject::connect(this->volumeList, SIGNAL(cellChanged(int,int)),
                    this, SLOT(onCellChanged(int,int)));
+  QObject::connect(this->volumeList, SIGNAL(cellDoubleClicked(int,int)),
+                   this, SLOT(onCellDoubleClicked(int,int)));
 
   QStringList labels(QString(tr("ID")));
   labels.append(QString(tr("Filled")));
@@ -150,6 +152,8 @@ void MainWindow::connectVolumeListHandlers()
 {
   QObject::connect(this->volumeList, SIGNAL(cellChanged(int,int)),
                    this, SLOT(onCellChanged(int,int)));
+  QObject::connect(this->volumeList, SIGNAL(cellDoubleClicked(int,int)),
+                   this, SLOT(onCellDoubleClicked(int,int)));
 }
 
 void MainWindow::update_operations_entries(bool show)
@@ -1499,6 +1503,50 @@ void MainWindow::onCellChanged(int row, int col)
 
   connectVolumeListHandlers();
   Q_EMIT( sceneChanged());
+}
+
+void MainWindow::onCellDoubleClicked(int row, int col)
+{
+  volumeList->disconnect(this);
+
+  LCC::Attribute_type<3>::type* ptr=
+      reinterpret_cast<LCC::Attribute_type<3>::type*>
+      ( volumeList->item(row,3)->data(Qt::UserRole).value<quintptr>() );
+
+  Dart_handle dh = ptr->dart();
+  CGAL::Bbox_3 temp_bb = scene.lcc->point(dh).bbox();
+  for (LCC::Dart_of_cell_range<3>::const_iterator
+         he_circ = scene.lcc->darts_of_cell<3>(dh).begin(),
+         he_circ_end = scene.lcc->darts_of_cell<3>(dh).end();
+       he_circ!=he_circ_end; ++he_circ)
+  {
+    temp_bb = temp_bb + scene.lcc->point(he_circ).bbox();
+  }
+
+  LCC::Vector normal = CGAL::compute_normal_of_cell_2(*scene.lcc,dh);
+  normal = normal/(CGAL::sqrt(normal*normal));
+
+  /*viewer->camera()->interpolateTo(CGAL::qglviewer::Frame(CGAL::qglviewer::Vec((temp_bb.xmin() + temp_bb.xmax()) / 2 + 50 * normal.x(),
+                                                                              (temp_bb.ymin() + temp_bb.ymax()) / 2 + 50 * normal.y(),
+                                                                              (temp_bb.zmin() + temp_bb.zmax()) / 2 + 50 * normal.z()),
+                                                                              CGAL::qglviewer::Quaternion(CGAL::qglviewer::Vec(0, 0, -1),
+                                                              CGAL::qglviewer::Vec(normal.x(), normal.y(), normal.z()))
+                                    ),
+                                  2
+                                  ); */
+   viewer->camera()->fitBoundingBox(CGAL::qglviewer::Vec(temp_bb.xmin(),
+                                                         temp_bb.ymin(),
+                                                         temp_bb.zmin()),
+                                          CGAL::qglviewer::Vec(temp_bb.xmax(),
+                                                         temp_bb.ymax(),
+                                                         temp_bb.zmax()));
+   viewer->camera()->setPivotPoint(CGAL::qglviewer::Vec((temp_bb.xmin() + temp_bb.xmax()) / 2,
+                                                        (temp_bb.ymin() + temp_bb.ymax()) / 2,
+                                                        (temp_bb.zmin() + temp_bb.zmax()) / 2));
+
+  connectVolumeListHandlers();
+  viewer->update();
+  //Q_EMIT( sceneChanged());
 }
 
 void MainWindow::onHeaderClicked(int col)
