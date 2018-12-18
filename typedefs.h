@@ -59,6 +59,7 @@ extern CGAL::Random myrandom;
 // Use to define properties on volumes.
 #define LCC_DEMO_VISIBLE 1 // if not visible => hidden
 #define LCC_DEMO_FILLED  2 // if not filled, wireframe
+#define LCC_DEMO_SELECTED 4 // if selected
 
 class Volume_info
 {
@@ -95,6 +96,8 @@ public:
   { return (m_status & LCC_DEMO_FILLED)!=0; }
   bool is_filled_and_visible() const
   { return is_filled() && is_visible(); }
+  bool is_selected() const
+  { return (m_status & LCC_DEMO_SELECTED)!=0; }
 
   void set_visible(bool val=true)
   {
@@ -107,6 +110,12 @@ public:
     if ( is_filled()==val ) return;
     if ( val ) m_status = m_status | LCC_DEMO_FILLED;
     else       m_status = m_status ^ LCC_DEMO_FILLED;
+  }
+  void set_selected(bool val=true)
+  {
+    if ( is_filled()==val ) return;
+    if ( val ) m_status = m_status | LCC_DEMO_SELECTED;
+    else       m_status = m_status ^ LCC_DEMO_SELECTED;
   }
 
   void set_guid(std::string guid)
@@ -133,6 +142,8 @@ public:
   { set_visible(!is_visible()); }
   void negate_filled()
   { set_filled(!is_filled()); }
+  void negate_selected()
+  { set_selected(!is_selected()); }
 
 private:
   CGAL::Color m_color;
