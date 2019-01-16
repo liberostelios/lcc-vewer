@@ -319,6 +319,13 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
     r /= 2; g /= 2; b /= 2;
   }
 
+  if (lcc.info<3>(dh).is_selected())
+  {
+    r = 255;
+    g = 255;
+    b = 0;
+  }
+
   //compute flat normals
   LCC::Vector normal = CGAL::compute_normal_of_cell_2(lcc,dh);
   normal = normal/(CGAL::sqrt(normal*normal));

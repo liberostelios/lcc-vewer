@@ -113,7 +113,7 @@ public:
   }
   void set_selected(bool val=true)
   {
-    if ( is_filled()==val ) return;
+    if ( is_selected()==val ) return;
     if ( val ) m_status = m_status | LCC_DEMO_SELECTED;
     else       m_status = m_status ^ LCC_DEMO_SELECTED;
   }
