@@ -51,12 +51,6 @@ public:
   void setScene(Scene* scene_)
   {
     scene = scene_;
-    // Clean triangles cache
-    for(auto it = triangles.begin(); it != triangles.end(); it++)
-    {
-      delete it->second;
-    }
-    triangles.clear();
   }
 
 public:
@@ -113,7 +107,6 @@ private:
   std::vector<float> smooth_normals;
   std::vector<float> flat_normals;
   std::vector<float> colors;
-  std::map<Dart_handle, CDT*> triangles;
 
   QGLBuffer buffers[NB_VBO_BUFFERS];
   QOpenGLVertexArrayObject vao[NB_VAO_BUFFERS];

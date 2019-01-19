@@ -308,9 +308,10 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
 
   CGAL::mark_cell<LCC, 2>(lcc, dh, markface);
 
-  double r = (double)lcc.info<3>(dh).color().r()/255.0;
-  double g = (double)lcc.info<3>(dh).color().g()/255.0;
-  double b = (double)lcc.info<3>(dh).color().b()/255.0;
+  auto volume_info = lcc.info<3>(dh);
+  double r = (double)volume_info.color().r()/255.0;
+  double g = (double)volume_info.color().g()/255.0;
+  double b = (double)volume_info.color().b()/255.0;
   if ( !lcc.is_free(dh, 3) )
   {
     r += (double)lcc.info<3>(lcc.beta(dh,3)).color().r()/255.0;
@@ -319,7 +320,7 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
     r /= 2; g /= 2; b /= 2;
   }
 
-  if (lcc.info<3>(dh).is_selected())
+  if (volume_info.is_selected())
   {
     r = 255;
     g = 255;
@@ -342,12 +343,7 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
       P_traits cdt_traits(normal);
       CDT* cdt = new CDT(cdt_traits);
 
-      std::map<Dart_handle, CDT*>::iterator it = triangles.find(dh);
-      if (it != triangles.end())
-      {
-        cdt = it->second;
-      }
-      else
+      if (!volume_info.has_triangle_cache())
       {
         // Iterates on the vector of facet handles
         CDT::Vertex_handle previous = NULL, first = NULL;
@@ -421,56 +417,72 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
           }
         }
 
-        triangles[dh] = cdt;
+        for(CDT::Finite_faces_iterator ffit = cdt->finite_faces_begin(),
+              ffitend = cdt->finite_faces_end(); ffit != ffitend; ++ffit)
+        {
+          if(!ffit->info().is_external)
+          {
+            CacheTriangle triangle;
+            for (int i =0; i<3; i++)
+            {
+              triangle.normals[i].x = ffit->vertex(i)->info().v.x();
+              triangle.normals[i].y = ffit->vertex(i)->info().v.y();
+              triangle.normals[i].z = ffit->vertex(i)->info().v.z();
+
+              triangle.points[i].x = ffit->vertex(i)->point().x();
+              triangle.points[i].y = ffit->vertex(i)->point().y();
+              triangle.points[i].z = ffit->vertex(i)->point().z();
+            }
+
+            volume_info.triangle_cache()->push_back(triangle);
+          }
+        }
       }
 
       //iterates on the internal faces to add the vertices to the positions
       //and the normals to the appropriate vectors
-      for(CDT::Finite_faces_iterator ffit = cdt->finite_faces_begin(),
-            ffitend = cdt->finite_faces_end(); ffit != ffitend; ++ffit)
+      for(auto ffit = volume_info.triangle_cache()->begin(),
+            ffitend = volume_info.triangle_cache()->end(); ffit != ffitend; ++ffit)
       {
-        if(!ffit->info().is_external)
-        {
-          flat_normals.push_back(normal.x());
-          flat_normals.push_back(normal.y());
-          flat_normals.push_back(normal.z());
+        flat_normals.push_back(normal.x());
+        flat_normals.push_back(normal.y());
+        flat_normals.push_back(normal.z());
 
-          flat_normals.push_back(normal.x());
-          flat_normals.push_back(normal.y());
-          flat_normals.push_back(normal.z());
+        flat_normals.push_back(normal.x());
+        flat_normals.push_back(normal.y());
+        flat_normals.push_back(normal.z());
 
-          flat_normals.push_back(normal.x());
-          flat_normals.push_back(normal.y());
-          flat_normals.push_back(normal.z());
+        flat_normals.push_back(normal.x());
+        flat_normals.push_back(normal.y());
+        flat_normals.push_back(normal.z());
 
-          smooth_normals.push_back(ffit->vertex(0)->info().v.x());
-          smooth_normals.push_back(ffit->vertex(0)->info().v.y());
-          smooth_normals.push_back(ffit->vertex(0)->info().v.z());
+        smooth_normals.push_back(ffit->normals[0].x);
+        smooth_normals.push_back(ffit->normals[0].y);
+        smooth_normals.push_back(ffit->normals[0].z);
 
-          smooth_normals.push_back(ffit->vertex(1)->info().v.x());
-          smooth_normals.push_back(ffit->vertex(1)->info().v.y());
-          smooth_normals.push_back(ffit->vertex(1)->info().v.z());
+        smooth_normals.push_back(ffit->normals[1].x);
+        smooth_normals.push_back(ffit->normals[1].y);
+        smooth_normals.push_back(ffit->normals[1].z);
 
-          smooth_normals.push_back(ffit->vertex(2)->info().v.x());
-          smooth_normals.push_back(ffit->vertex(2)->info().v.y());
-          smooth_normals.push_back(ffit->vertex(2)->info().v.z());
+        smooth_normals.push_back(ffit->normals[2].x);
+        smooth_normals.push_back(ffit->normals[2].y);
+        smooth_normals.push_back(ffit->normals[2].z);
 
-          pos_facets.push_back(ffit->vertex(0)->point().x());
-          pos_facets.push_back(ffit->vertex(0)->point().y());
-          pos_facets.push_back(ffit->vertex(0)->point().z());
+        pos_facets.push_back(ffit->points[0].x);
+        pos_facets.push_back(ffit->points[0].y);
+        pos_facets.push_back(ffit->points[0].z);
 
-          pos_facets.push_back(ffit->vertex(1)->point().x());
-          pos_facets.push_back(ffit->vertex(1)->point().y());
-          pos_facets.push_back(ffit->vertex(1)->point().z());
+        pos_facets.push_back(ffit->points[1].x);
+        pos_facets.push_back(ffit->points[1].y);
+        pos_facets.push_back(ffit->points[1].z);
 
-          pos_facets.push_back(ffit->vertex(2)->point().x());
-          pos_facets.push_back(ffit->vertex(2)->point().y());
-          pos_facets.push_back(ffit->vertex(2)->point().z());
+        pos_facets.push_back(ffit->points[2].x);
+        pos_facets.push_back(ffit->points[2].y);
+        pos_facets.push_back(ffit->points[2].z);
 
-          colors.push_back(r);colors.push_back(g);colors.push_back(b);
-          colors.push_back(r);colors.push_back(g);colors.push_back(b);
-          colors.push_back(r);colors.push_back(g);colors.push_back(b);
-        }
+        colors.push_back(r);colors.push_back(g);colors.push_back(b);
+        colors.push_back(r);colors.push_back(g);colors.push_back(b);
+        colors.push_back(r);colors.push_back(g);colors.push_back(b);
       }
     }
     catch(...)

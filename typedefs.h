@@ -61,6 +61,16 @@ extern CGAL::Random myrandom;
 #define LCC_DEMO_FILLED  2 // if not filled, wireframe
 #define LCC_DEMO_SELECTED 4 // if selected
 
+struct CachePoint
+{
+  double x, y, z;
+};
+
+struct CacheTriangle{
+  CachePoint points[3];
+  CachePoint normals[3];
+};
+
 class Volume_info
 {
   friend void CGAL::read_cmap_attribute_node<Volume_info>
@@ -145,10 +155,27 @@ public:
   void negate_selected()
   { set_selected(!is_selected()); }
 
+  bool has_triangle_cache()
+  {
+    return !m_triangles.empty();
+  }
+
+  void clear_triangle_cache()
+  {
+    m_triangles.clear();
+  }
+
+  std::vector<CacheTriangle>* triangle_cache()
+  {
+    return &m_triangles;
+  }
+
+
 private:
   CGAL::Color m_color;
   char        m_status;
   std::string m_guid;
+  std::vector<CacheTriangle> m_triangles;
   citygml::AttributesMap m_attributes;
 };
 
