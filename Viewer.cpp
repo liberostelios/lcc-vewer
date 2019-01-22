@@ -233,7 +233,7 @@ void Viewer::postSelection(const QPoint &point) {
 
   if (bestHit > 0)
   {
-    displayMessage("Hit on " + QString::fromStdString(selected->get_guid()));
+    displayMessage("Hit on " + QString::fromStdString(selected->get_guid()), 15000);
     selected->set_selected(!selected->is_selected());
   }
 
