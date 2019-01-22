@@ -26,6 +26,8 @@
 #include <CGAL/Qt/CreateOpenGLContext.h>
 #include <CGAL/Qt/viewer_actions.h>
 
+#include <QMessageBox>
+
 #include <CGAL/Qt/vec.h>
 #include <QDebug>
 
@@ -203,6 +205,74 @@ void Viewer::compile_shaders()
     std::cerr<<"linking Program FAILED"<<std::endl;
   }
   rendering_program_p_l.bind();
+}
+
+void Viewer::postSelection(const QPoint &point) {
+  CGAL::qglviewer::Vec orig, dir;
+  // Compute orig and dir, used to draw a representation of the intersecting
+  // line
+  camera()->convertClickToLine(point, orig, dir);
+
+  float bestHit = -1.0f;
+  Volume_info *selected;
+
+  for (auto dh = scene->lcc->one_dart_per_cell<2>().begin(); dh != scene->lcc->one_dart_per_cell<2>().end(); dh++)
+  {
+    if (!scene->lcc->info<3>(dh).is_visible())
+      continue;
+
+    Face_cache cache = scene->lcc->info<2>(dh);
+
+    float newHit = hit(cache, orig, dir);
+    if (bestHit < 0 || (newHit < bestHit && newHit > 0))
+    {
+        bestHit = newHit;
+        selected = &scene->lcc->info<3>(dh);
+    }
+  }
+
+  if (bestHit > 0)
+  {
+    displayMessage("Hit on " + QString::fromStdString(selected->get_guid()));
+    selected->set_selected(!selected->is_selected());
+  }
+
+  sceneChanged();
+}
+
+float Viewer::hit(Face_cache object, CGAL::qglviewer::Vec origin, CGAL::qglviewer::Vec direction) {
+  qreal bestHit = -1.0;
+  qreal epsilon = 0.000001;
+
+  // Moller-Trumbore algorithm for triangle-ray intersection (non-culling)
+  // u,v are the barycentric coordinates of the intersection point
+  // t is the distance from rayOrigin to the intersection point
+  for (auto triangle: *object.triangle_cache()) {
+    CGAL::qglviewer::Vec vertex[3];
+    for (int point = 0; point < 3; ++point) {
+      vertex[point] = CGAL::qglviewer::Vec((triangle.points[point].x),
+                                       (triangle.points[point].y),
+                                       (triangle.points[point].z));
+    }
+    CGAL::qglviewer::Vec edge1 = vertex[1] - vertex[0];
+    CGAL::qglviewer::Vec edge2 = vertex[2] - vertex[0];
+    CGAL::qglviewer::Vec pvec = direction ^ edge2;
+    qreal determinant = edge1 * pvec;
+    if (determinant > -epsilon && determinant < epsilon) continue; // if determinant is near zero  ray lies in plane of triangle
+    qreal inverseDeterminant = 1.0 / determinant;
+    CGAL::qglviewer::Vec tvec = origin - vertex[0]; // distance from vertex0 to rayOrigin
+    qreal u = (tvec * pvec) * inverseDeterminant;
+    if (u < 0.0 || u > 1.0) continue;
+    CGAL::qglviewer::Vec qvec = tvec ^ edge1;
+    qreal v = direction * qvec * inverseDeterminant;
+    if (v < 0.0 || u + v > 1.0) continue;
+    qreal t = (edge2 * qvec) * inverseDeterminant;
+    if (t > epsilon) {
+      if (t > bestHit) bestHit = t;
+    }
+  }
+
+  return bestHit;
 }
 
 void Viewer::initialize_buffers()

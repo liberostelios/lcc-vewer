@@ -58,6 +58,8 @@ public:
 
   virtual void init();
 
+  virtual void postSelection(const QPoint &point);
+
   void keyPressEvent(QKeyEvent *e);
 
   virtual QString helpString() const;
@@ -75,6 +77,7 @@ private:
   void compute_face(Dart_handle dh, LCC::size_type markface);
   void compute_edge(Dart_handle dh, LCC::size_type markedge);
   void compute_vertex(Dart_handle dh, LCC::size_type markvertex, bool& empty);
+  float hit(Face_cache object, CGAL::qglviewer::Vec orig, CGAL::qglviewer::Vec dir);
 private:
   Scene* scene;
   
