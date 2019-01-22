@@ -409,15 +409,15 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
   if (isnan(normal.x()))
     return;
   
-  if (lcc.beta<1,1,1>(dh)!=dh)
+  if (!face_info->has_triangle_cache())
   {
-    try // Try catch to avoir crash of triangulation
+    if (lcc.beta<1,1,1>(dh)!=dh)
     {
-      P_traits cdt_traits(normal);
-      CDT* cdt = new CDT(cdt_traits);
-
-      if (!face_info->has_triangle_cache())
+      try // Try catch to avoir crash of triangulation
       {
+        P_traits cdt_traits(normal);
+        CDT* cdt = new CDT(cdt_traits);
+
         // Iterates on the vector of facet handles
         CDT::Vertex_handle previous = NULL, first = NULL;
         for (LCC::Dart_of_orbit_range<1>::const_iterator
@@ -511,63 +511,67 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
           }
         }
       }
-
-      //iterates on the internal faces to add the vertices to the positions
-      //and the normals to the appropriate vectors
-      for(auto ffit = face_info->triangle_cache()->begin(),
-            ffitend = face_info->triangle_cache()->end(); ffit != ffitend; ++ffit)
-      {
-        flat_normals.push_back(normal.x());
-        flat_normals.push_back(normal.y());
-        flat_normals.push_back(normal.z());
-
-        flat_normals.push_back(normal.x());
-        flat_normals.push_back(normal.y());
-        flat_normals.push_back(normal.z());
-
-        flat_normals.push_back(normal.x());
-        flat_normals.push_back(normal.y());
-        flat_normals.push_back(normal.z());
-
-        smooth_normals.push_back(ffit->normals[0].x);
-        smooth_normals.push_back(ffit->normals[0].y);
-        smooth_normals.push_back(ffit->normals[0].z);
-
-        smooth_normals.push_back(ffit->normals[1].x);
-        smooth_normals.push_back(ffit->normals[1].y);
-        smooth_normals.push_back(ffit->normals[1].z);
-
-        smooth_normals.push_back(ffit->normals[2].x);
-        smooth_normals.push_back(ffit->normals[2].y);
-        smooth_normals.push_back(ffit->normals[2].z);
-
-        pos_facets.push_back(ffit->points[0].x);
-        pos_facets.push_back(ffit->points[0].y);
-        pos_facets.push_back(ffit->points[0].z);
-
-        pos_facets.push_back(ffit->points[1].x);
-        pos_facets.push_back(ffit->points[1].y);
-        pos_facets.push_back(ffit->points[1].z);
-
-        pos_facets.push_back(ffit->points[2].x);
-        pos_facets.push_back(ffit->points[2].y);
-        pos_facets.push_back(ffit->points[2].z);
-
-        colors.push_back(r);colors.push_back(g);colors.push_back(b);
-        colors.push_back(r);colors.push_back(g);colors.push_back(b);
-        colors.push_back(r);colors.push_back(g);colors.push_back(b);
+      catch(...)
+      { // Triangulation crash: the face is not filled
       }
     }
-    catch(...)
-    { // Triangulation crash: the face is not filled
+    else
+    { // The face is a triangle
+      colors.push_back(r);colors.push_back(g);colors.push_back(b);
+      colors.push_back(r);colors.push_back(g);colors.push_back(b);
+      colors.push_back(r);colors.push_back(g);colors.push_back(b);
+
+      flat_normals.push_back(normal.x());
+      flat_normals.push_back(normal.y());
+      flat_normals.push_back(normal.z());
+
+      flat_normals.push_back(normal.x());
+      flat_normals.push_back(normal.y());
+      flat_normals.push_back(normal.z());
+
+      flat_normals.push_back(normal.x());
+      flat_normals.push_back(normal.y());
+      flat_normals.push_back(normal.z());
+
+      CacheTriangle triangle;
+      int i = 0;
+      for (LCC::Dart_of_orbit_range<1>::const_iterator
+             orbitIter = lcc.darts_of_orbit<1>(dh).begin();
+           orbitIter.cont(); ++orbitIter)
+      {
+        //compute Smooth normals
+        LCC::Vector normal = CGAL::compute_normal_of_cell_0(lcc,orbitIter);
+        normal = normal/(CGAL::sqrt(normal*normal));
+        if (inverse_normal) normal=normal*-1;
+
+        smooth_normals.push_back(normal.x());
+        smooth_normals.push_back(normal.y());
+        smooth_normals.push_back(normal.z());
+
+        const LCC::Point& p = lcc.point(orbitIter);
+        pos_facets.push_back(p.x());
+        pos_facets.push_back(p.y());
+        pos_facets.push_back(p.z());
+
+        triangle.normals[i].x = normal.x();
+        triangle.normals[i].y = normal.y();
+        triangle.normals[i].z = normal.z();
+
+        triangle.points[i].x = p.x();
+        triangle.points[i].y = p.y();
+        triangle.points[i].z = p.z();
+
+        i++;
+      }
+      face_info->triangle_cache()->push_back(triangle);
     }
   }
-  else
-  { // The face is a triangle
-    colors.push_back(r);colors.push_back(g);colors.push_back(b);
-    colors.push_back(r);colors.push_back(g);colors.push_back(b);
-    colors.push_back(r);colors.push_back(g);colors.push_back(b);
 
+  //iterates on the internal faces to add the vertices to the positions
+  //and the normals to the appropriate vectors
+  for(auto ffit = face_info->triangle_cache()->begin(),
+        ffitend = face_info->triangle_cache()->end(); ffit != ffitend; ++ffit)
+  {
     flat_normals.push_back(normal.x());
     flat_normals.push_back(normal.y());
     flat_normals.push_back(normal.z());
@@ -580,24 +584,33 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
     flat_normals.push_back(normal.y());
     flat_normals.push_back(normal.z());
 
-    for (LCC::Dart_of_orbit_range<1>::const_iterator
-           orbitIter = lcc.darts_of_orbit<1>(dh).begin();
-         orbitIter.cont(); ++orbitIter)
-    {
-      //compute Smooth normals
-      LCC::Vector normal = CGAL::compute_normal_of_cell_0(lcc,orbitIter);
-      normal = normal/(CGAL::sqrt(normal*normal));
-      if (inverse_normal) normal=normal*-1;
+    smooth_normals.push_back(ffit->normals[0].x);
+    smooth_normals.push_back(ffit->normals[0].y);
+    smooth_normals.push_back(ffit->normals[0].z);
 
-      smooth_normals.push_back(normal.x());
-      smooth_normals.push_back(normal.y());
-      smooth_normals.push_back(normal.z());
+    smooth_normals.push_back(ffit->normals[1].x);
+    smooth_normals.push_back(ffit->normals[1].y);
+    smooth_normals.push_back(ffit->normals[1].z);
 
-      const LCC::Point& p = lcc.point(orbitIter);
-      pos_facets.push_back(p.x());
-      pos_facets.push_back(p.y());
-      pos_facets.push_back(p.z());
-    }
+    smooth_normals.push_back(ffit->normals[2].x);
+    smooth_normals.push_back(ffit->normals[2].y);
+    smooth_normals.push_back(ffit->normals[2].z);
+
+    pos_facets.push_back(ffit->points[0].x);
+    pos_facets.push_back(ffit->points[0].y);
+    pos_facets.push_back(ffit->points[0].z);
+
+    pos_facets.push_back(ffit->points[1].x);
+    pos_facets.push_back(ffit->points[1].y);
+    pos_facets.push_back(ffit->points[1].z);
+
+    pos_facets.push_back(ffit->points[2].x);
+    pos_facets.push_back(ffit->points[2].y);
+    pos_facets.push_back(ffit->points[2].z);
+
+    colors.push_back(r);colors.push_back(g);colors.push_back(b);
+    colors.push_back(r);colors.push_back(g);colors.push_back(b);
+    colors.push_back(r);colors.push_back(g);colors.push_back(b);
   }
 }
 
