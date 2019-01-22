@@ -308,10 +308,13 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
 
   CGAL::mark_cell<LCC, 2>(lcc, dh, markface);
 
-  auto volume_info = lcc.info<3>(dh);
-  double r = (double)volume_info.color().r()/255.0;
-  double g = (double)volume_info.color().g()/255.0;
-  double b = (double)volume_info.color().b()/255.0;
+  auto *volume_info = &lcc.info<3>(dh);
+  if (lcc.attribute<2>(dh)==NULL )
+        scene->lcc->set_attribute<2>(dh, scene->lcc->create_attribute<2>());
+  auto *face_info = &lcc.info<2>(dh);
+  double r = (double)volume_info->color().r()/255.0;
+  double g = (double)volume_info->color().g()/255.0;
+  double b = (double)volume_info->color().b()/255.0;
   if ( !lcc.is_free(dh, 3) )
   {
     r += (double)lcc.info<3>(lcc.beta(dh,3)).color().r()/255.0;
@@ -320,7 +323,7 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
     r /= 2; g /= 2; b /= 2;
   }
 
-  if (volume_info.is_selected())
+  if (volume_info->is_selected())
   {
     r = 255;
     g = 255;
@@ -343,7 +346,7 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
       P_traits cdt_traits(normal);
       CDT* cdt = new CDT(cdt_traits);
 
-      if (!volume_info.has_triangle_cache())
+      if (!face_info->has_triangle_cache())
       {
         // Iterates on the vector of facet handles
         CDT::Vertex_handle previous = NULL, first = NULL;
@@ -434,15 +437,15 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
               triangle.points[i].z = ffit->vertex(i)->point().z();
             }
 
-            volume_info.triangle_cache()->push_back(triangle);
+            face_info->triangle_cache()->push_back(triangle);
           }
         }
       }
 
       //iterates on the internal faces to add the vertices to the positions
       //and the normals to the appropriate vectors
-      for(auto ffit = volume_info.triangle_cache()->begin(),
-            ffitend = volume_info.triangle_cache()->end(); ffit != ffitend; ++ffit)
+      for(auto ffit = face_info->triangle_cache()->begin(),
+            ffitend = face_info->triangle_cache()->end(); ffit != ffitend; ++ffit)
       {
         flat_normals.push_back(normal.x());
         flat_normals.push_back(normal.y());

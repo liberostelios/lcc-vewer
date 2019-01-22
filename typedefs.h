@@ -71,6 +71,30 @@ struct CacheTriangle{
   CachePoint normals[3];
 };
 
+class Face_cache
+{
+public:
+  Face_cache() {}
+
+  bool has_triangle_cache()
+  {
+    return !m_triangles.empty();
+  }
+
+  void clear_triangle_cache()
+  {
+    m_triangles.clear();
+  }
+
+  std::vector<CacheTriangle>* triangle_cache()
+  {
+    return &m_triangles;
+  }
+
+private:
+  std::vector<CacheTriangle> m_triangles;
+};
+
 class Volume_info
 {
   friend void CGAL::read_cmap_attribute_node<Volume_info>
@@ -155,27 +179,10 @@ public:
   void negate_selected()
   { set_selected(!is_selected()); }
 
-  bool has_triangle_cache()
-  {
-    return !m_triangles.empty();
-  }
-
-  void clear_triangle_cache()
-  {
-    m_triangles.clear();
-  }
-
-  std::vector<CacheTriangle>* triangle_cache()
-  {
-    return &m_triangles;
-  }
-
-
 private:
   CGAL::Color m_color;
   char        m_status;
   std::string m_guid;
-  std::vector<CacheTriangle> m_triangles;
   citygml::AttributesMap m_attributes;
 };
 
@@ -237,9 +244,10 @@ public:
   struct Dart_wrapper
   {
     typedef CGAL::Cell_attribute_with_point< Refs > Vertex_attrib;
+    typedef CGAL::Cell_attribute< Refs, Face_cache> Face_attrib;
     typedef CGAL::Cell_attribute< Refs, Volume_info> Volume_attrib;
 
-    typedef CGAL::cpp11::tuple<Vertex_attrib,void,void,
+    typedef CGAL::cpp11::tuple<Vertex_attrib,void,Face_attrib,
                                Volume_attrib> Attributes;
   };
 };
