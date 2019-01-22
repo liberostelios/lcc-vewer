@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>635</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -94,6 +94,7 @@
     <addaction name="actionExtend_filled_volumes"/>
     <addaction name="actionExtend_hidden_volumes"/>
     <addaction name="separator"/>
+    <addaction name="actionZoom_on_double_click"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCreations"/>
@@ -252,6 +253,14 @@
   <action name="actionInsert_center_vertices">
    <property name="text">
     <string>Insert center vertices in faces</string>
+   </property>
+  </action>
+  <action name="actionZoom_on_double_click">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Zoom on double-click</string>
    </property>
   </action>
  </widget>

@@ -1530,19 +1530,22 @@ void MainWindow::onCellDoubleClicked(int row, int col)
     temp_bb = temp_bb + scene.lcc->point(he_circ).bbox();
   }
 
-//  LCC::Vector normal = CGAL::compute_normal_of_cell_2(*scene.lcc,dh);
-//  normal = normal/(CGAL::sqrt(normal*normal));
+  if (actionZoom_on_double_click->isChecked())
+  {
+    LCC::Vector normal = CGAL::compute_normal_of_cell_2(*scene.lcc,dh);
+    normal = normal/(CGAL::sqrt(normal*normal));
 
-//  viewer->camera()->fitBoundingBox(CGAL::qglviewer::Vec(temp_bb.xmin() - 20,
-//                                                         temp_bb.ymin() - 20,
-//                                                         temp_bb.zmin() - 20),
-//                                          CGAL::qglviewer::Vec(temp_bb.xmax() + 20,
-//                                                         temp_bb.ymax() + 20,
-//                                                         temp_bb.zmax() + 20));
+    viewer->camera()->fitBoundingBox(CGAL::qglviewer::Vec(temp_bb.xmin() - 20,
+                                                           temp_bb.ymin() - 20,
+                                                           temp_bb.zmin() - 20),
+                                            CGAL::qglviewer::Vec(temp_bb.xmax() + 20,
+                                                           temp_bb.ymax() + 20,
+                                                           temp_bb.zmax() + 20));
 
-//  viewer->camera()->setPivotPoint(CGAL::qglviewer::Vec((temp_bb.xmin() + temp_bb.xmax()) / 2,
-//                                                        (temp_bb.ymin() + temp_bb.ymax()) / 2,
-//                                                        (temp_bb.zmin() + temp_bb.zmax()) / 2));
+    viewer->camera()->setPivotPoint(CGAL::qglviewer::Vec((temp_bb.xmin() + temp_bb.xmax()) / 2,
+                                                          (temp_bb.ymin() + temp_bb.ymax()) / 2,
+                                                          (temp_bb.zmin() + temp_bb.zmax()) / 2));
+  }
 
   std::ostringstream os;
   os << "X: " << (temp_bb.xmin() + temp_bb.xmax()) / 2
