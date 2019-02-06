@@ -53,6 +53,8 @@
 #include <vector>
 #include <list>
 
+#include "thirdparty/json.hpp"
+
 // Global random
 extern CGAL::Random myrandom;
 
