@@ -368,7 +368,7 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
 
     for (int i = 1; i < d_betas.size() + 1; i++)
     {
-      new_darts.push_back(scene.lcc->create_dart());
+      new_darts.push_back(scene.lcc->create_dart(json_to_point(all_vertices[(int)d_vertices[i - 1]], scale, translate)));
     }
 
     unsigned int current_dart = 0;
@@ -381,15 +381,15 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
           scene.lcc->basic_link_beta(dart, new_darts[(int)d_betas[current_dart][d] - 1], d + 1);
         }
       }
-      auto v = scene.lcc->create_attribute<0>();
-      v->point() = json_to_point(all_vertices[(int)d_vertices[current_dart]], scale, translate);
-      scene.lcc->set_attribute<0>(dart, v);
       auto vol_info = scene.lcc->create_attribute<3>();
       vol_info->info().set_guid(d_ids[current_dart]);
       scene.lcc->set_attribute<3>(dart, vol_info);
       ++current_dart;
     }
   }
+
+  init_all_new_volumes();
+  recreate_whole_volume_list();
 
   QApplication::restoreOverrideCursor ();
 
