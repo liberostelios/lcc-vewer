@@ -335,14 +335,70 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
   QApplication::setOverrideCursor (Qt::WaitCursor);
 
   std::ifstream input_file(fileName.toUtf8().constData());
+
   nlohmann::json city_model;
   input_file >> city_model;
 
-  statusBar()->showMessage(QString::number(city_model["CityObjects"].size()));
+  if (city_model.find("darts") == city_model.end())
+  {
+    statusBar()->showMessage("Problem: This isn't a LCC-extended file!");
+  }
+  else
+  {
+    if (clear)
+    {
+      scene.lcc->clear();
+    }
+
+    nlohmann::json d_betas = city_model["darts"]["betas"];
+    nlohmann::json d_ids = city_model["darts"]["parents"];
+    nlohmann::json d_vertices = city_model["darts"]["vertices"];
+    nlohmann::json all_vertices = city_model["vertices"];
+
+    std::vector<Dart_handle> new_darts;
+
+    for (int i = 1; i < d_betas.size() + 1; i++)
+    {
+      new_darts.push_back(scene.lcc->create_dart());
+    }
+
+    unsigned int current_dart = 0;
+    for (auto dart : new_darts)
+    {
+      for (int d = 0; d < 3; d++)
+      {
+        if (d_betas[current_dart][d] != -1)
+        {
+          scene.lcc->basic_link_beta(dart, new_darts[(int)d_betas[current_dart][d] - 1], d + 1);
+        }
+      }
+      auto v = scene.lcc->create_attribute<0>();
+      v->point() = json_to_point(all_vertices[(int)d_vertices[current_dart]], city_model);
+      scene.lcc->set_attribute<0>(dart, v);
+      auto vol_info = scene.lcc->create_attribute<3>();
+      vol_info->info().set_guid(d_ids[current_dart]);
+      scene.lcc->set_attribute<3>(dart, vol_info);
+      ++current_dart;
+    }
+  }
 
   QApplication::restoreOverrideCursor ();
 
   Q_EMIT (sceneChanged ());
+}
+
+Point_3 MainWindow::json_to_point(nlohmann::json point, nlohmann::json cityModel)
+{
+  if (cityModel.find("transform") != cityModel.end())
+  {
+    nlohmann::json scale, translate;
+    scale = cityModel["transform"]["scale"];
+    translate = cityModel["transform"]["translate"];
+
+    return Point_3((double)point[0] * (double)scale[0] + (double)translate[0], (double)point[1] * (double)scale[1] + (double)translate[1], (double)point[2] * (double)scale[2] + (double)translate[2]);
+  }
+
+  return Point_3(point[0], point[1], point[2]);
 }
 
 void MainWindow::load(const QString & fileName, bool clear)
