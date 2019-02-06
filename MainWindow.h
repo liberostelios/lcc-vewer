@@ -242,7 +242,7 @@ protected:
   void sierpinski_triangle_split_face_in_four(Dart_handle dh,
                                               bool removecenter);
 
-  Point_3 json_to_point(nlohmann::json p, nlohmann::json cityModel);
+  Point_3 json_to_point(nlohmann::json p, double* scale, double* translate);
 
   Scene scene;
 

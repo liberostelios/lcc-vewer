@@ -350,6 +350,15 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
       scene.lcc->clear();
     }
 
+    double scale[3] = {1, 1, 1};
+    double translate[3] = {0, 0, 0};
+    if (city_model.find("transform") != city_model.end())
+    {
+      nlohmann::json scale, translate;
+      scale = city_model["transform"]["scale"];
+      translate = city_model["transform"]["translate"];
+    }
+
     nlohmann::json d_betas = city_model["darts"]["betas"];
     nlohmann::json d_ids = city_model["darts"]["parents"];
     nlohmann::json d_vertices = city_model["darts"]["vertices"];
@@ -373,7 +382,7 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
         }
       }
       auto v = scene.lcc->create_attribute<0>();
-      v->point() = json_to_point(all_vertices[(int)d_vertices[current_dart]], city_model);
+      v->point() = json_to_point(all_vertices[(int)d_vertices[current_dart]], scale, translate);
       scene.lcc->set_attribute<0>(dart, v);
       auto vol_info = scene.lcc->create_attribute<3>();
       vol_info->info().set_guid(d_ids[current_dart]);
@@ -387,18 +396,9 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
   Q_EMIT (sceneChanged ());
 }
 
-Point_3 MainWindow::json_to_point(nlohmann::json point, nlohmann::json cityModel)
+Point_3 MainWindow::json_to_point(nlohmann::json point, double* scale, double* translate)
 {
-  if (cityModel.find("transform") != cityModel.end())
-  {
-    nlohmann::json scale, translate;
-    scale = cityModel["transform"]["scale"];
-    translate = cityModel["transform"]["translate"];
-
-    return Point_3((double)point[0] * (double)scale[0] + (double)translate[0], (double)point[1] * (double)scale[1] + (double)translate[1], (double)point[2] * (double)scale[2] + (double)translate[2]);
-  }
-
-  return Point_3(point[0], point[1], point[2]);
+  return Point_3((double)point[0] * (double)scale[0] + (double)translate[0], (double)point[1] * (double)scale[1] + (double)translate[1], (double)point[2] * (double)scale[2] + (double)translate[2]);
 }
 
 void MainWindow::load(const QString & fileName, bool clear)
