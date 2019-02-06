@@ -112,7 +112,8 @@ public:
 public Q_SLOTS:
   // File menu
   void on_actionSave_triggered();
-  void on_actionLoad_triggered();  
+  void on_actionLoad_triggered();
+  void on_actionLoadCityjson_triggered();
   void on_actionImportOFF_triggered();
   void on_actionImport3DTDS_triggered();
   void on_actionImportMoka_triggered();
@@ -149,6 +150,7 @@ public Q_SLOTS:
   // Other slots
   void load_depend_on_extension(const QString& fileName, bool clear=false);
   void load(const QString& fileName, bool clear=false);
+  void loadCityjson(const QString& fileName, bool clear=false);
   void save(const QString& fileName);
   void load_off(const QString& fileName, bool clear=false);
   void load_3DTDS(const QString& fileName, bool clear=false);

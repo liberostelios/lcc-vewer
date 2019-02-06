@@ -41,6 +41,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionLoad"/>
+    <addaction name="actionLoadCityjson"/>
     <addaction name="actionSave"/>
     <addaction name="separator"/>
     <addaction name="actionImportOFF"/>
@@ -261,6 +262,11 @@
    </property>
    <property name="text">
     <string>Zoom on double-click</string>
+   </property>
+  </action>
+  <action name="actionLoadCityjson">
+   <property name="text">
+    <string>Load CityJSON</string>
    </property>
   </action>
  </widget>

@@ -255,6 +255,19 @@ void MainWindow::on_actionLoad_triggered ()
   }
 }
 
+void MainWindow::on_actionLoadCityjson_triggered()
+{
+  QString fileName = QFileDialog::getOpenFileName (this,
+                                                   tr ("Load CityJSON"),
+                                                   "./json",
+                                                   tr ("CityJSON files (*.json)"));
+
+  if (!fileName.isEmpty())
+  {
+    loadCityjson(fileName);
+  }
+}
+
 void MainWindow::on_actionImportOFF_triggered ()
 {
   QString fileName = QFileDialog::getOpenFileName (this,
@@ -315,6 +328,21 @@ void MainWindow::load_depend_on_extension(const QString & fileName, bool clear)
   {
     std::cout<<"Extension not considered."<<std::endl;
   }
+}
+
+void MainWindow::loadCityjson(const QString & fileName, bool clear)
+{
+  QApplication::setOverrideCursor (Qt::WaitCursor);
+
+  std::ifstream input_file(fileName.toUtf8().constData());
+  nlohmann::json city_model;
+  input_file >> city_model;
+
+  statusBar()->showMessage(QString::number(city_model["CityObjects"].size()));
+
+  QApplication::restoreOverrideCursor ();
+
+  Q_EMIT (sceneChanged ());
 }
 
 void MainWindow::load(const QString & fileName, bool clear)
