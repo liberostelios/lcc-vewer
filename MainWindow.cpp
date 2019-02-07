@@ -354,9 +354,11 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
     double translate[3] = {0, 0, 0};
     if (city_model.find("transform") != city_model.end())
     {
-      nlohmann::json scale, translate;
-      scale = city_model["transform"]["scale"];
-      translate = city_model["transform"]["translate"];
+      for (int d = 0; d < 3; d++)
+      {
+        scale[d] = city_model["transform"]["scale"][d];
+        translate[d] = city_model["transform"]["translate"][d];
+      }
     }
 
     nlohmann::json d_betas = city_model["darts"]["betas"];
