@@ -93,8 +93,19 @@ public:
     return &m_triangles;
   }
 
+  void set_guid(std::string guid)
+  {
+    m_guid = guid;
+  }
+
+  std::string get_guid()
+  {
+    return m_guid;
+  }
+
 private:
   std::vector<CacheTriangle> m_triangles;
+  std::string m_guid;
 };
 
 class Volume_info

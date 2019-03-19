@@ -339,7 +339,7 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
   nlohmann::json city_model;
   input_file >> city_model;
 
-  if (city_model.find("darts") == city_model.end())
+  if (city_model.find("+darts") == city_model.end())
   {
     statusBar()->showMessage("Problem: This isn't a LCC-extended file!");
   }
@@ -361,9 +361,9 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
       }
     }
 
-    nlohmann::json d_betas = city_model["darts"]["betas"];
-    nlohmann::json d_ids = city_model["darts"]["parents"];
-    nlohmann::json d_vertices = city_model["darts"]["vertices"];
+    nlohmann::json d_betas = city_model["+darts"]["betas"];
+    nlohmann::json d_ids = city_model["+darts"]["parents"];
+    nlohmann::json d_vertices = city_model["+darts"]["vertices"];
     nlohmann::json all_vertices = city_model["vertices"];
 
     std::vector<Dart_handle> new_darts;
@@ -383,9 +383,9 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
           scene.lcc->basic_link_beta(dart, new_darts[(int)d_betas[current_dart][d] - 1], d + 1);
         }
       }
-      auto vol_info = scene.lcc->create_attribute<3>();
-      vol_info->info().set_guid(d_ids[current_dart]);
-      scene.lcc->set_attribute<3>(dart, vol_info);
+      auto face_info = scene.lcc->create_attribute<2>();
+      face_info->info().set_guid(d_ids[current_dart]);
+      scene.lcc->set_attribute<2>(dart, face_info);
       ++current_dart;
     }
   }

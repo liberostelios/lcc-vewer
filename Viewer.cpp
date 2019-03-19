@@ -228,12 +228,13 @@ void Viewer::postSelection(const QPoint &point) {
     {
         bestHit = newHit;
         selected = &scene->lcc->info<3>(dh);
+        displayMessage("Hit on " + QString::fromStdString(cache.get_guid()), 15000);
     }
   }
 
   if (bestHit > 0)
   {
-    displayMessage("Hit on " + QString::fromStdString(selected->get_guid()), 15000);
+    //displayMessage("Hit on " + QString::fromStdString(selected->get_guid()), 15000);
     selected->set_selected(!selected->is_selected());
   }
 
