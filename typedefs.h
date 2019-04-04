@@ -103,9 +103,20 @@ public:
     return m_guid;
   }
 
+  void set_semantic_surface(std::string semantic_surface)
+  {
+    m_semantic_surface = semantic_surface;
+  }
+
+  std::string get_semantic_surface()
+  {
+    return m_semantic_surface;
+  }
+
 private:
   std::vector<CacheTriangle> m_triangles;
   std::string m_guid;
+  std::string m_semantic_surface;
 };
 
 class Volume_info

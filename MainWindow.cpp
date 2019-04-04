@@ -362,8 +362,9 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
     }
 
     nlohmann::json d_betas = city_model["+darts"]["betas"];
-    nlohmann::json d_ids = city_model["+darts"]["parents"];
+    nlohmann::json d_ids = city_model["+darts"]["parentCityObjects"];
     nlohmann::json d_vertices = city_model["+darts"]["vertices"];
+    nlohmann::json d_semanticSurfaces = city_model["+darts"]["semanticSurfaces"];
     nlohmann::json all_vertices = city_model["vertices"];
 
     std::vector<Dart_handle> new_darts;
@@ -384,8 +385,18 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
         }
       }
       auto face_info = scene.lcc->create_attribute<2>();
-      face_info->info().set_guid(d_ids[current_dart]);
+      std::string guid = d_ids[current_dart];
+      face_info->info().set_guid(guid);
       scene.lcc->set_attribute<2>(dart, face_info);
+      if (guid != "nothing")
+      {
+        int geometry_id = d_semanticSurfaces[current_dart][0];
+        int solid_id = d_semanticSurfaces[current_dart][1];
+        int semantid_id = d_semanticSurfaces[current_dart][2];
+
+        // TODO: This has to behave according to geometry type
+        face_info->info().set_semantic_surface(city_model["CityObjects"][guid]["geometry"][geometry_id]["semantics"]["surfaces"][semantid_id]["type"]);
+      }
       ++current_dart;
     }
   }

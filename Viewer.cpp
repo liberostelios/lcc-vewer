@@ -215,6 +215,7 @@ void Viewer::postSelection(const QPoint &point) {
 
   float bestHit = -1.0f;
   Volume_info *selected;
+  Face_cache *selected_face;
 
   for (auto dh = scene->lcc->one_dart_per_cell<2>().begin(); dh != scene->lcc->one_dart_per_cell<2>().end(); dh++)
   {
@@ -228,13 +229,13 @@ void Viewer::postSelection(const QPoint &point) {
     {
         bestHit = newHit;
         selected = &scene->lcc->info<3>(dh);
-        displayMessage("Hit on " + QString::fromStdString(cache.get_guid()), 15000);
+        selected_face = &scene->lcc->info<2>(dh);
     }
   }
 
   if (bestHit > 0)
   {
-    //displayMessage("Hit on " + QString::fromStdString(selected->get_guid()), 15000);
+    displayMessage("Hit on " + QString::fromStdString(selected_face->get_guid()) + " (" + QString::fromStdString(selected_face->get_semantic_surface()) + ")", 15000);
     selected->set_selected(!selected->is_selected());
   }
 
