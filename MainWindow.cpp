@@ -391,8 +391,7 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
       if (guid != "nothing")
       {
         int geometry_id = d_semanticSurfaces[current_dart][0];
-        int solid_id = d_semanticSurfaces[current_dart][1];
-        int semantid_id = d_semanticSurfaces[current_dart][2];
+        int semantid_id = d_semanticSurfaces[current_dart][1];
 
         // TODO: This has to behave according to geometry type
         face_info->info().set_semantic_surface(city_model["CityObjects"][guid]["geometry"][geometry_id]["semantics"]["surfaces"][semantid_id]["type"]);
