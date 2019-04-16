@@ -427,7 +427,7 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
       g = 128;
       b = 0;
     }
-    else if (face_info->get_semantic_surface() == "WaterBody")
+    else if (face_info->get_semantic_surface() == "WaterSurface")
     {
       r = 0;
       g = 0;
