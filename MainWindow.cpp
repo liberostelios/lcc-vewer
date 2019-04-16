@@ -393,8 +393,10 @@ void MainWindow::loadCityjson(const QString & fileName, bool clear)
         int geometry_id = d_semanticSurfaces[current_dart][0];
         int semantid_id = d_semanticSurfaces[current_dart][1];
 
-        // TODO: This has to behave according to geometry type
-        face_info->info().set_semantic_surface(city_model["CityObjects"][guid]["geometry"][geometry_id]["semantics"]["surfaces"][semantid_id]["type"]);
+        if (city_model["CityObjects"][guid]["geometry"][geometry_id].find("semantics") != city_model["CityObjects"][guid]["geometry"][geometry_id].end())
+        {
+          face_info->info().set_semantic_surface(city_model["CityObjects"][guid]["geometry"][geometry_id]["semantics"]["surfaces"][semantid_id]["type"]);
+        }
       }
       ++current_dart;
     }
