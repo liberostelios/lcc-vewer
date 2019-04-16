@@ -96,6 +96,7 @@
     <addaction name="actionExtend_hidden_volumes"/>
     <addaction name="separator"/>
     <addaction name="actionZoom_on_double_click"/>
+    <addaction name="actionSemantic_formatting"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCreations"/>
@@ -267,6 +268,14 @@
   <action name="actionLoadCityjson">
    <property name="text">
     <string>Load CityJSON</string>
+   </property>
+  </action>
+  <action name="actionSemantic_formatting">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Semantic formatting</string>
    </property>
   </action>
  </widget>

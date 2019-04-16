@@ -64,6 +64,9 @@ public:
 
   virtual QString helpString() const;
 
+  void set_semantic_formatting(bool value);
+  bool get_semantic_formatting();
+
 public Q_SLOTS:
 
   void sceneChanged();
@@ -94,6 +97,7 @@ private:
   
   bool m_previous_scene_empty;
   bool are_buffers_initialized;
+  bool m_semantic_formatting;
 
   //Shaders elements
   int vertexLocation[3];

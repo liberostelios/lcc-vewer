@@ -992,6 +992,12 @@ void MainWindow::on_actionUnsew3_all_triggered()
     statusBar()->showMessage (QString ("No dart 3-unsewn"), DELAY_STATUSMSG);
 }
 
+void MainWindow::on_actionSemantic_formatting_triggered()
+{
+  this->viewer->set_semantic_formatting(actionSemantic_formatting->isChecked());
+  this->sceneChanged();
+}
+
 void MainWindow::on_actionInsideOut_triggered()
 {
   QApplication::setOverrideCursor (Qt::WaitCursor);

@@ -395,6 +395,22 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
     r /= 2; g /= 2; b /= 2;
   }
 
+  if (m_semantic_formatting)
+  {
+    if (face_info->get_semantic_surface() == "WallSurface")
+    {
+      r = 128;
+      g = 128;
+      b = 128;
+    }
+    else if (face_info->get_semantic_surface() == "RoofSurface")
+    {
+      r = 128;
+      g = 0;
+      b = 0;
+    }
+  }
+
   if (volume_info->is_selected())
   {
     r = 255;
@@ -850,6 +866,17 @@ void Viewer::draw()
     }
   }
 }
+
+bool Viewer::get_semantic_formatting()
+{
+  return m_semantic_formatting;
+}
+
+void Viewer::set_semantic_formatting(bool value)
+{
+  m_semantic_formatting = value;
+}
+
 void Viewer::init()
 {
   // Restore previous viewer state.

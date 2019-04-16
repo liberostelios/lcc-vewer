@@ -146,6 +146,7 @@ public Q_SLOTS:
   // View menu
   void on_actionExtend_filled_volumes_triggered();
   void on_actionExtend_hidden_volumes_triggered();
+  void on_actionSemantic_formatting_triggered();
 
   // Other slots
   void load_depend_on_extension(const QString& fileName, bool clear=false);
