@@ -409,6 +409,36 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
       g = 0;
       b = 0;
     }
+    else if (face_info->get_semantic_surface() == "GroundSurface")
+    {
+      r = 0;
+      g = 0;
+      b = 0;
+    }
+    else if (face_info->get_semantic_surface() == "Window")
+    {
+      r = 0;
+      g = 0;
+      b = 128;
+    }
+    else if (face_info->get_semantic_surface() == "Door")
+    {
+      r = 0;
+      g = 128;
+      b = 0;
+    }
+    else if (face_info->get_semantic_surface() == "WaterBody")
+    {
+      r = 0;
+      g = 0;
+      b = 256;
+    }
+    else if (face_info->get_semantic_surface() == "TrafficArea")
+    {
+      r = 0;
+      g = 128;
+      b = 128;
+    }
   }
 
   if (volume_info->is_selected())
