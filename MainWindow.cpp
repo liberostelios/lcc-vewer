@@ -994,7 +994,13 @@ void MainWindow::on_actionUnsew3_all_triggered()
 
 void MainWindow::on_actionSemantic_formatting_triggered()
 {
-  this->viewer->set_semantic_formatting(actionSemantic_formatting->isChecked());
+  if (actionSemantic_formatting->isChecked()){
+    this->viewer->set_semantic_formatting(new SurfaceFaceFormatter());
+  }
+  else
+  {
+    this->viewer->set_semantic_formatting(new ObjectFaceFormatter(scene.lcc));
+  }
   this->sceneChanged();
 }
 

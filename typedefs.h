@@ -312,6 +312,118 @@ typedef CGAL::Triangulation_data_structure_2<Vb,Fb>                   TDS;
 typedef CGAL::Constrained_Delaunay_triangulation_2<P_traits, TDS,
                                                    Itag>              CDT;
 
+class FaceFormatter {
+public:
+  virtual void getColor(Face_cache*, double&, double&, double&){};
+};
+
+class SurfaceFaceFormatter : public FaceFormatter {
+public:
+  void getColor(Face_cache* face_info, double& r, double& g, double& b) override
+  {
+    if (face_info->get_semantic_surface() == "WallSurface")
+    {
+      r = 255;
+      g = 255;
+      b = 255;
+    }
+    else if (face_info->get_semantic_surface() == "RoofSurface")
+    {
+      r = 255;
+      g = 0;
+      b = 0;
+    }
+    else if (face_info->get_semantic_surface() == "GroundSurface")
+    {
+      r = 0;
+      g = 0;
+      b = 0;
+    }
+    else if (face_info->get_semantic_surface() == "Window")
+    {
+      r = 0;
+      g = 0;
+      b = 255;
+    }
+    else if (face_info->get_semantic_surface() == "Door")
+    {
+      r = 0;
+      g = 255;
+      b = 0;
+    }
+    else if (face_info->get_semantic_surface() == "WaterSurface")
+    {
+      r = 0;
+      g = 0;
+      b = 255;
+    }
+    else if (face_info->get_semantic_surface() == "TrafficArea")
+    {
+      r = 0;
+      g = 128;
+      b = 128;
+    }
+
+    r /= 255.0;
+    g /= 255.0;
+    b /= 255.0;
+  }
+
+  ~SurfaceFaceFormatter()
+  {}
+};
+
+struct Color
+{
+  Color() :
+    r(myrandom.get_int(0,256)),
+    g(myrandom.get_int(0,256)),
+    b(myrandom.get_int(0,256))
+  {}
+
+  double r, g, b;
+};
+
+class ObjectFaceFormatter : public FaceFormatter {
+public:
+  std::map<std::string, Color*> colormap;
+
+  ObjectFaceFormatter(LCC* lcc)
+  {
+    for (auto it=lcc->one_dart_per_cell<2>().begin();
+         it!=lcc->one_dart_per_cell<2>().end(); ++it)
+    {
+      Color* new_color = new Color();
+      colormap[lcc->info<2>(it).get_guid()] = new_color;
+    }
+
+    for(auto color = colormap.begin(); color != colormap.end(); color++)
+    {
+      std::cout << color->first << ": " << color->second->r << ", " << color->second->g << ", " << color->second->b << std::endl;
+    }
+  }
+
+  void getColor(Face_cache* face_info, double& r, double& g, double& b) override
+  {
+    Color* mycolor = colormap[face_info->get_guid()];
+    r = mycolor->r;
+    g = mycolor->g;
+    b = mycolor->b;
+
+    r /= 255.0;
+    g /= 255.0;
+    b /= 255.0;
+  }
+
+  ~ObjectFaceFormatter()
+  {
+    for(auto color = colormap.begin(); color != colormap.end(); color++)
+    {
+      delete color->second;
+    }
+  }
+};
+
 struct Scene {
   LCC* lcc;
 };

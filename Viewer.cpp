@@ -122,7 +122,8 @@ Viewer::Viewer(QWidget* parent)
     size_edges(3.1),
     ambient(0.6f, 0.5f, 0.5f, 0.5f),
     m_previous_scene_empty(true),
-    are_buffers_initialized(false)
+    are_buffers_initialized(false),
+    m_face_formatter(new FaceFormatter())
 {
 }
 
@@ -395,56 +396,12 @@ void Viewer::compute_face(Dart_handle dh, LCC::size_type markface)
     r /= 2; g /= 2; b /= 2;
   }
 
-  if (m_semantic_formatting)
-  {
-    if (face_info->get_semantic_surface() == "WallSurface")
-    {
-      r = 128;
-      g = 128;
-      b = 128;
-    }
-    else if (face_info->get_semantic_surface() == "RoofSurface")
-    {
-      r = 128;
-      g = 0;
-      b = 0;
-    }
-    else if (face_info->get_semantic_surface() == "GroundSurface")
-    {
-      r = 0;
-      g = 0;
-      b = 0;
-    }
-    else if (face_info->get_semantic_surface() == "Window")
-    {
-      r = 0;
-      g = 0;
-      b = 128;
-    }
-    else if (face_info->get_semantic_surface() == "Door")
-    {
-      r = 0;
-      g = 128;
-      b = 0;
-    }
-    else if (face_info->get_semantic_surface() == "WaterSurface")
-    {
-      r = 0;
-      g = 0;
-      b = 256;
-    }
-    else if (face_info->get_semantic_surface() == "TrafficArea")
-    {
-      r = 0;
-      g = 128;
-      b = 128;
-    }
-  }
+  m_face_formatter->getColor(face_info, r, g, b);
 
   if (volume_info->is_selected())
   {
-    r = 255;
-    g = 255;
+    r = 1;
+    g = 1;
     b = 0;
   }
 
@@ -897,14 +854,10 @@ void Viewer::draw()
   }
 }
 
-bool Viewer::get_semantic_formatting()
+void Viewer::set_semantic_formatting(FaceFormatter* new_formatter)
 {
-  return m_semantic_formatting;
-}
-
-void Viewer::set_semantic_formatting(bool value)
-{
-  m_semantic_formatting = value;
+  delete m_face_formatter;
+  m_face_formatter = new_formatter;
 }
 
 void Viewer::init()
