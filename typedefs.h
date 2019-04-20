@@ -321,6 +321,10 @@ class SurfaceFaceFormatter : public FaceFormatter {
 public:
   void getColor(Face_cache* face_info, double& r, double& g, double& b) override
   {
+    r *= 255.0;
+    g *= 255.0;
+    b *= 255.0;
+
     if (face_info->get_semantic_surface() == "WallSurface")
     {
       r = 255;
