@@ -396,11 +396,6 @@ public:
       Color* new_color = new Color();
       colormap[lcc->info<2>(it).get_guid()] = new_color;
     }
-
-    for(auto color = colormap.begin(); color != colormap.end(); color++)
-    {
-      std::cout << color->first << ": " << color->second->r << ", " << color->second->g << ", " << color->second->b << std::endl;
-    }
   }
 
   void getColor(Face_cache* face_info, double& r, double& g, double& b) override
