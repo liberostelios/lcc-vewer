@@ -38,14 +38,6 @@
 #include <CGAL/Timer.h>
 #include <CGAL/Random.h>
 
-#include <citygml.h>
-#include <citymodel.h>
-#include <cityobject.h>
-#include <geometry.h>
-#include <polygon.h>
-#include <object.h>
-#include <attributesmap.h>
-
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -186,16 +178,6 @@ public:
     return m_guid;
   }
 
-  void set_attributes(citygml::AttributesMap attributes)
-  {
-      m_attributes = attributes;
-  }
-
-  citygml::AttributesMap get_attributes()
-  {
-      return m_attributes;
-  }
-
   void negate_visible()
   { set_visible(!is_visible()); }
   void negate_filled()
@@ -207,7 +189,6 @@ private:
   CGAL::Color m_color;
   char        m_status;
   std::string m_guid;
-  citygml::AttributesMap m_attributes;
 };
 
 namespace CGAL
@@ -253,10 +234,6 @@ inline void write_cmap_attribute_node<Volume_info>(boost::property_tree::ptree &
   nValue.add("color-g",(int)arg.m_color.g());
   nValue.add("color-b",(int)arg.m_color.b());
   nValue.add("guid",arg.m_guid);
-  for (citygml::AttributesMap::const_iterator it = arg.m_attributes.begin(); it != arg.m_attributes.end(); ++it)
-  {
-      nValue.add("attributes." + it->first, it->second.asString());
-  }
 }
 
 }

@@ -52,7 +52,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 include_directories(BEFORE . ../../include/)
 
 # Include libcitygml
-INCLUDE_DIRECTORIES( /usr/local/include/citygml )
+# INCLUDE_DIRECTORIES( /usr/local/include/citygml )
 
 # ui file, created wih Qt Designer
 qt5_wrap_ui(uis MainWindow.ui CreateMesh.ui CreateMenger.ui
@@ -71,7 +71,7 @@ add_executable(Linear_cell_complex_3_demo
 add_to_cached_list(CGAL_EXECUTABLE_TARGETS Linear_cell_complex_3_demo)
 
 target_link_libraries(Linear_cell_complex_3_demo PRIVATE
-  CGAL::CGAL CGAL::CGAL_Qt5 Qt5::Gui Qt5::OpenGL citygml)
+  CGAL::CGAL CGAL::CGAL_Qt5 Qt5::Gui Qt5::OpenGL)
 
 include(${CGAL_MODULES_DIR}/CGAL_add_test.cmake)
 cgal_add_compilation_test(Linear_cell_complex_3_demo)
