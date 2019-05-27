@@ -95,6 +95,11 @@ MainWindow::MainWindow (QWidget * parent):CGAL::Qt::DemosMainWindow (parent),
        " Volume: 0 (Vol color: 0),  Connected components: 0");
   statusBar ()->addWidget (statusMessage);
 
+  QActionGroup* group = new QActionGroup( this );
+
+  actionVolume_formatting->setActionGroup(group);
+  actionSemantic_formatting->setActionGroup(group);
+  actionCity_object_formatting->setActionGroup(group);
 }
 
 void MainWindow::connect_actions ()
@@ -994,10 +999,6 @@ void MainWindow::on_actionUnsew3_all_triggered()
 
 void MainWindow::on_actionSemantic_formatting_triggered()
 {
-  actionVolume_formatting->setChecked(false);
-  actionSemantic_formatting->setChecked(true);
-  actionCity_object_formatting->setChecked(false);
-
   if (actionSemantic_formatting->isChecked())
   {
     this->viewer->set_semantic_formatting(new SurfaceFaceFormatter());
@@ -1007,10 +1008,6 @@ void MainWindow::on_actionSemantic_formatting_triggered()
 
 void MainWindow::on_actionCity_object_formatting_triggered()
 {
-  actionVolume_formatting->setChecked(false);
-  actionSemantic_formatting->setChecked(false);
-  actionCity_object_formatting->setChecked(true);
-
   if (actionCity_object_formatting->isChecked())
   {
     this->viewer->set_semantic_formatting(new ObjectFaceFormatter(scene.lcc));
@@ -1020,10 +1017,6 @@ void MainWindow::on_actionCity_object_formatting_triggered()
 
 void MainWindow::on_actionVolume_formatting_triggered()
 {
-  actionVolume_formatting->setChecked(true);
-  actionSemantic_formatting->setChecked(false);
-  actionCity_object_formatting->setChecked(false);
-
   if (actionVolume_formatting->isChecked())
   {
     this->viewer->set_semantic_formatting(new FaceFormatter());
