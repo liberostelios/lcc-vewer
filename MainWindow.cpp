@@ -994,14 +994,41 @@ void MainWindow::on_actionUnsew3_all_triggered()
 
 void MainWindow::on_actionSemantic_formatting_triggered()
 {
-  if (actionSemantic_formatting->isChecked()){
+  actionVolume_formatting->setChecked(false);
+  actionSemantic_formatting->setChecked(true);
+  actionCity_object_formatting->setChecked(false);
+
+  if (actionSemantic_formatting->isChecked())
+  {
     this->viewer->set_semantic_formatting(new SurfaceFaceFormatter());
+    this->sceneChanged();
   }
-  else
+}
+
+void MainWindow::on_actionCity_object_formatting_triggered()
+{
+  actionVolume_formatting->setChecked(false);
+  actionSemantic_formatting->setChecked(false);
+  actionCity_object_formatting->setChecked(true);
+
+  if (actionCity_object_formatting->isChecked())
   {
     this->viewer->set_semantic_formatting(new ObjectFaceFormatter(scene.lcc));
+    this->sceneChanged();
   }
-  this->sceneChanged();
+}
+
+void MainWindow::on_actionVolume_formatting_triggered()
+{
+  actionVolume_formatting->setChecked(true);
+  actionSemantic_formatting->setChecked(false);
+  actionCity_object_formatting->setChecked(false);
+
+  if (actionVolume_formatting->isChecked())
+  {
+    this->viewer->set_semantic_formatting(new FaceFormatter());
+    this->sceneChanged();
+  }
 }
 
 void MainWindow::on_actionInsideOut_triggered()

@@ -91,12 +91,20 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <widget class="QMenu" name="menuSurface_Formatting">
+     <property name="title">
+      <string>Surface Formatting</string>
+     </property>
+     <addaction name="actionVolume_formatting"/>
+     <addaction name="actionSemantic_formatting"/>
+     <addaction name="actionCity_object_formatting"/>
+    </widget>
     <addaction name="separator"/>
     <addaction name="actionExtend_filled_volumes"/>
     <addaction name="actionExtend_hidden_volumes"/>
     <addaction name="separator"/>
     <addaction name="actionZoom_on_double_click"/>
-    <addaction name="actionSemantic_formatting"/>
+    <addaction name="menuSurface_Formatting"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCreations"/>
@@ -275,7 +283,26 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Semantic formatting</string>
+    <string>Per semantic surface</string>
+   </property>
+  </action>
+  <action name="actionCity_object_formatting">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Per city object</string>
+   </property>
+  </action>
+  <action name="actionVolume_formatting">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Per volume</string>
    </property>
   </action>
  </widget>
